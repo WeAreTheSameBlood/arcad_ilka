@@ -11,7 +11,7 @@ public:
 private:    
     // MARK: - Properties
     const char* game_title = "Snake";
-    // Size set in pixels
+    // Size set in pixels (height and width)
     const int baseSegmentSize = 8;
     // Dead zone around the edges of the screen as a multiple of the segment size
     const int deadZoneSegmentsMultiplicator = 4;

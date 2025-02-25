@@ -1,7 +1,7 @@
 #include "snake.h"
 #include <cstdlib>
 #include <ctime>
-#include "strings.h"
+#include "../resouces/strings.h"
 
 // MARK: - Static 
 static int globalHighScore = 0;
@@ -51,8 +51,8 @@ void SnakeApp::run() {
             if (buttonsState.a.justPressed) {
                 // Reset game state
                 body.clear();
-                int startX = canvas->width() / 2;
-                int startY = canvas->height() / 2;
+                int startX = (canvas->width() / 2 / baseSegmentSize) * baseSegmentSize;
+                int startY = (canvas->height() / 2 / baseSegmentSize) * baseSegmentSize;
                 body.push_back({ startX, startY });
                 body.push_back({ startX - baseSegmentSize, startY });
                 body.push_back({ startX - 2 * baseSegmentSize, startY });
@@ -60,6 +60,8 @@ void SnakeApp::run() {
                 gameOver = false;
                 spawnApple();
             } else if (buttonsState.b.justPressed) {
+                // Exit game
+                stop();
                 return;
             }
             vTaskDelay(100 / portTICK_PERIOD_MS);
@@ -71,10 +73,10 @@ void SnakeApp::run() {
 void SnakeApp::spawnApple() {
     // Calculate limits indesies for random position
     int minIndexX = deadZoneSegmentsMultiplicator;
-    int maxIndexX = (canvas->width() / baseSegmentSize) - deadZoneSegmentsMultiplicator;
+    int maxIndexX = (canvas->width() / baseSegmentSize) - deadZoneSegmentsMultiplicator - 1;
 
     int minIndexY = deadZoneSegmentsMultiplicator;
-    int maxIndexY = (canvas->height() / baseSegmentSize) - deadZoneSegmentsMultiplicator;
+    int maxIndexY = (canvas->height() / baseSegmentSize) - deadZoneSegmentsMultiplicator - 1;
 
     // Generate random position until it doesn't collide with the snake
     while (true) {
@@ -117,8 +119,8 @@ void SnakeApp::update() {
     if (newY >= canvas->height()) newY = 0;
     
     // Check collision with apple
-    for (auto &seg : body) {
-        if (seg.first == newX && seg.second == newY) {
+    for (size_t i = 0; i < body.size() - 1; i++) {
+        if (body[i].first == newX && body[i].second == newY) {
             gameOver = true;
             if (score > globalHighScore) {
                 globalHighScore = score;
@@ -166,7 +168,7 @@ void SnakeApp::showGameOver() {
     // Game Over preview
     canvas->setCursor(
         canvas->width() / 2 - 44,
-        canvas->height() / 2 - 40
+        canvas->height() / 2 - 50
     );
     canvas->setTextColor(lilka::colors::Red);
     canvas->print(Strings::GAME_OVER);
@@ -180,7 +182,7 @@ void SnakeApp::showGameOver() {
     );
     canvas->setCursor(
         canvas->width() / 2 - 62,
-        canvas->height() / 2 - 10
+        canvas->height() / 2 - 20
     );
     canvas->setTextColor(lilka::colors::White);
     canvas->print(scoreText);
@@ -194,15 +196,24 @@ void SnakeApp::showGameOver() {
     );
     canvas->setCursor(
         canvas->width() / 2 - 62,
-        canvas->height() / 2 + 10
+        canvas->height() / 2
     );
     canvas->setTextColor(lilka::colors::Yellow);
     canvas->print(highScoreText);
 
+    // Press A Preview
     canvas->setCursor(
-        canvas->width() / 2 - 100, 
-        canvas->height() / 2 + 40
+        canvas->width() / 2 - 96, 
+        canvas->height() / 2 + 30
     );
     canvas->setTextColor(lilka::colors::Green);
     canvas->print(Strings::PRESS_A_TRY_AGAIN);
+
+    // Press B Preview
+    canvas->setCursor(
+        canvas->width() / 2 - 80, 
+        canvas->height() / 2 + 50
+    );
+    canvas->setTextColor(lilka::colors::Red_orange);
+    canvas->print(Strings::PRESS_B_EXIT);
 }

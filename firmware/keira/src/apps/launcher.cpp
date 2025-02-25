@@ -31,6 +31,7 @@
 #include "liltracker/liltracker.h"
 #include "fmanager/fmanager.h"
 #include "pastebin/pastebinApp.h"
+#include "games/snake/app/snake.h"
 
 #include "settings/sound.h"
 
@@ -60,6 +61,14 @@ void LauncherApp::run() {
             ITEM::SUBMENU(
                 "Додатки",
                 {
+                    ITEM::SUBMENU(
+                        "Games",
+                        {
+                            ITEM::APP("Snake", [this]() { this->runApp<SnakeApp>(); }),
+                        },
+                        &app_group_img, 
+                        lilka::colors::Neon_green
+                    ),
                     ITEM::SUBMENU(
                         "Демо",
                         {
