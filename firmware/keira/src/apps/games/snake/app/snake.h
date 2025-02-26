@@ -51,6 +51,7 @@ private:
     void handleOptionsMenu();
 
     // MARK: - Game Process methods
+    void restartGame();
     void update();
     void spawnApple();
     void drawGame();

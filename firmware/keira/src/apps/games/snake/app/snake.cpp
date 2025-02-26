@@ -64,18 +64,7 @@ void SnakeApp::run() {
 
                     lilka::State buttonsState = lilka::controller.getState();
                     if (buttonsState.a.justPressed) {
-                        // Restart game
-                        body.clear();
-                        int startX = (canvas->width() / 2 / baseSegmentSize) * baseSegmentSize;
-                        int startY = (canvas->height() / 2 / baseSegmentSize) * baseSegmentSize;
-                        body.push_back({startX, startY});
-                        body.push_back({startX - baseSegmentSize, startY});
-                        body.push_back({startX - 2 * baseSegmentSize, startY});
-                        score = 0;
-                        gameOver = false;
-
-                        spawnApple();
-                        currentGameState = GameState::Game;
+                        restartGame();
                     } else if (buttonsState.b.justPressed) {
                         // Return to main menu
                         currentGameState = GameState::Menu;
@@ -91,21 +80,25 @@ void SnakeApp::run() {
     }
 }
 
-void SnakeApp::displayMainMenu() {
-    canvas->fillScreen(canvas->color565(0, 0, 0));
+// MARK: - Restart
+void SnakeApp::restartGame() {
+    // Clear the snake body and reset game parameters
+    body.clear();
+    int startX = (canvas->width() / 2 / baseSegmentSize) * baseSegmentSize;
+    int startY = (canvas->height() / 2 / baseSegmentSize) * baseSegmentSize;
 
-    // Main menu options
-    const char* items[3] = {"Start", "Options", "Exit"};
-    int startY = canvas->height() / 2 - 20;
+    // Build the starting snake body with 3 segments
+    body.push_back({startX, startY});
+    body.push_back({startX - baseSegmentSize, startY});
+    body.push_back({startX - 2 * baseSegmentSize, startY});
+    score = 0;
+    gameOver = false;
 
-    for (int i = 0; i < 3; i++) {
-        canvas->setCursor(canvas->width() / 2 - 40, startY + i * 20);
-        if (i == menuIndex) canvas->setTextColor(lilka::colors::Yellow);
-        else canvas->setTextColor(lilka::colors::White);
-        canvas->print(items[i]);
-    }
+    spawnApple();
+    currentGameState = GameState::Game;
 }
 
+// MARK: - Main Menu
 void SnakeApp::handleMainMenu() {
     displayMainMenu();
     queueDraw();
@@ -116,40 +109,43 @@ void SnakeApp::handleMainMenu() {
     } else if (state.down.justPressed) {
         if (menuIndex < 2) menuIndex++;
     } else if (state.a.justPressed) {
-        if (menuIndex == 0) {
-            body.clear();
-            int startX = (canvas->width() / 2 / baseSegmentSize) * baseSegmentSize;
-            int startY = (canvas->height() / 2 / baseSegmentSize) * baseSegmentSize;
-            body.push_back({startX, startY});
-            body.push_back({startX - baseSegmentSize, startY});
-            body.push_back({startX - 2 * baseSegmentSize, startY});
-            score = 0;
-            gameOver = false;
-            spawnApple();
-            currentGameState = GameState::Game;
-        } else if (menuIndex == 1) {
-            currentGameState = GameState::Options;
-        } else if (menuIndex == 2) {
-            currentGameState = GameState::Exit;
+        switch (menuIndex) {
+            case 0:
+                // Start
+                restartGame();
+                break;
+
+            case 1:
+                // Options
+                currentGameState = GameState::Options;
+                break;
+
+            case 2:
+                // Exit
+                currentGameState = GameState::Exit;
+                break;
         }
     }
     vTaskDelay(100 / portTICK_PERIOD_MS);
 }
 
-void SnakeApp::displayOptionsMenu() {
+void SnakeApp::displayMainMenu() {
     canvas->fillScreen(canvas->color565(0, 0, 0));
 
-    // Options menu options -_-
-    const char* options[3] = {"Slow", "Normal", "Fast"};
+    // Main menu options
+    const char* items[3] = {"Start", "Options", "Exit"};
+    const int verticalSpacing = 20;
     int startY = canvas->height() / 2 - 20;
+
     for (int i = 0; i < 3; i++) {
-        canvas->setCursor(canvas->width() / 2 - 40, startY + i * 20);
-        if (i == optionsIndex) canvas->setTextColor(lilka::colors::Yellow);
+        canvas->setCursor(canvas->width() / 2 - 40, startY + i * verticalSpacing);
+        if (i == menuIndex) canvas->setTextColor(lilka::colors::Yellow);
         else canvas->setTextColor(lilka::colors::White);
-        canvas->print(options[i]);
+        canvas->print(items[i]);
     }
 }
 
+// MARK: - Options Menu
 void SnakeApp::handleOptionsMenu() {
     displayOptionsMenu();
     queueDraw();
@@ -184,6 +180,20 @@ void SnakeApp::handleOptionsMenu() {
         currentGameState = GameState::Menu;
     }
     vTaskDelay(100 / portTICK_PERIOD_MS);
+}
+
+void SnakeApp::displayOptionsMenu() {
+    canvas->fillScreen(canvas->color565(0, 0, 0));
+
+    // Options menu options -_-
+    const char* options[3] = {"Slow", "Normal", "Fast"};
+    int startY = canvas->height() / 2 - 20;
+    for (int i = 0; i < 3; i++) {
+        canvas->setCursor(canvas->width() / 2 - 40, startY + i * 20);
+        if (i == optionsIndex) canvas->setTextColor(lilka::colors::Yellow);
+        else canvas->setTextColor(lilka::colors::White);
+        canvas->print(options[i]);
+    }
 }
 
 // MARK: - Spawn Apple
@@ -291,19 +301,19 @@ void SnakeApp::showGameOver() {
     // Your Score Preview
     char scoreText[16];
     std::snprintf(scoreText, sizeof(scoreText), Strings::YOUR_SCORE_FORMAT, score);
-    canvas->setCursor(canvas->width() / 2 - 62, canvas->height() / 2 - 20);
+    canvas->setCursor(canvas->width() / 2 - 68, canvas->height() / 2 - 20);
     canvas->setTextColor(lilka::colors::White);
     canvas->print(scoreText);
 
     // High Score Preview
     char highScoreText[16];
     std::snprintf(highScoreText, sizeof(highScoreText), Strings::HIGH_SCORE_FORMAT, globalHighScore);
-    canvas->setCursor(canvas->width() / 2 - 62, canvas->height() / 2);
+    canvas->setCursor(canvas->width() / 2 - 68, canvas->height() / 2);
     canvas->setTextColor(lilka::colors::Yellow);
     canvas->print(highScoreText);
 
     // Press A Preview
-    canvas->setCursor(canvas->width() / 2 - 96, canvas->height() / 2 + 30);
+    canvas->setCursor(canvas->width() / 2 - 100, canvas->height() / 2 + 30);
     canvas->setTextColor(lilka::colors::Green);
     canvas->print(Strings::PRESS_A_TRY_AGAIN);
 
