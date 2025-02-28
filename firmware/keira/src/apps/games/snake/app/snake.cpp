@@ -16,7 +16,8 @@ SnakeApp::SnakeApp() :
     currentGameState(GameState::Menu),
     gameSpeedDelay(100),
     menuIndex(0),
-    optionsIndex(1) {
+    optionsIndex(1),
+    titleAnimated(false) {
     std::srand(std::time(nullptr));
 
     // Init snake body in the centre of screen
@@ -132,10 +133,15 @@ void SnakeApp::handleMainMenu() {
 void SnakeApp::displayMainMenu() {
     canvas->fillScreen(canvas->color565(0, 0, 0));
 
+    // Main menu title
+    // Draw the big animated title "S N A K E" using custom drawing
+    // Adjust startX as needed to center the title (example offset: canvas->width()/2 - 100)
+    drawBigTitle(canvas->width() / 2 - 100, 20);
+
     // Main menu options
     const char* items[3] = {"Start", "Options", "Exit"};
     const int verticalSpacing = 20;
-    int startY = canvas->height() / 2 - 20;
+    int startY = canvas->height() / 2 + 10;
 
     for (int i = 0; i < 3; i++) {
         canvas->setCursor(canvas->width() / 2 - 40, startY + i * verticalSpacing);
@@ -143,6 +149,91 @@ void SnakeApp::displayMainMenu() {
         else canvas->setTextColor(lilka::colors::White);
         canvas->print(items[i]);
     }
+}
+
+// MARK: - Draw Big Title (manually drawn letters)
+// This function draws the title "S N A K E" with a height of approximately 48 pixels.
+// Each letter is drawn using fillRect primitives.
+void SnakeApp::drawBigTitle(int startX, int startY) {
+    // Set title drawing color (example: green)
+    uint16_t titleColor = canvas->color565(0, 255, 0);
+
+    // --- Draw Apple before S ---
+    canvas->fillRect(startX - 16, startY + 41, 8, 8, canvas->color565(255, 0, 0));
+
+    // --- Draw letter S ---
+    // Top horizontal bar
+    canvas->fillRect(startX, startY, 30, 8, titleColor);
+    // Upper left vertical bar
+    canvas->fillRect(startX, startY, 8, 24, titleColor);
+    // Middle horizontal bar
+    canvas->fillRect(startX, startY + 20, 30, 8, titleColor);
+    // Lower right vertical bar
+    canvas->fillRect(startX + 22, startY + 20, 8, 24, titleColor);
+    // Bottom horizontal bar
+    canvas->fillRect(startX, startY + 40, 30, 8, titleColor);
+
+    int letterSpacing = 40; // Offset for next letter
+
+    // --- Draw letter N ---
+    int xN = startX + letterSpacing;
+    // Left vertical bar
+    canvas->fillRect(xN, startY, 8, 48, titleColor);
+    // Right vertical bar
+    canvas->fillRect(xN + 24, startY, 8, 48, titleColor);
+    // Diagonal (approximation using small rectangles)
+    for (int i = 0; i < 48; i += 4) {
+        canvas->fillRect(xN + 8 + i / 3, startY + i, 4, 4, titleColor);
+    }
+
+    // --- Draw letter A ---
+    int xA = xN + letterSpacing;
+    // Right diagonal of A
+    for (int i = 0; i < 48; i += 4) {
+        if (i >= 40) {
+            canvas->fillRect(16 + xA + i / 3, startY + i, 4, 4, titleColor);
+        } else {
+            canvas->fillRect(16 + xA + i / 3, startY + i, 4, 6, titleColor);
+        }
+    }
+    // Left diagonal of A
+    for (int i = 0; i < 48; i += 4) {
+        if (i >= 40) {
+            canvas->fillRect(xA + 16 - i / 3, startY + i, 4, 4, titleColor);
+        } else {
+            canvas->fillRect(xA + 16 - i / 3, startY + i, 4, 6, titleColor);
+        }
+    }
+    // Horizontal crossbar of A
+    canvas->fillRect(xA + (4 * 2.5), startY + 24 + 4, 16, 8, titleColor);
+
+    // --- Draw letter K ---
+    int xK = xA + letterSpacing;
+    // Vertical bar for K
+    canvas->fillRect(xK, startY, 8, 48, titleColor);
+    // Upper diagonal
+    for (int i = 0; i <= 24; i += 4) {
+        if (i == 24) {
+            canvas->fillRect(xK + 8 + i, startY + 22 - i, 4, 4, titleColor);
+        } else {
+            canvas->fillRect(xK + 8 + i, startY + 22 - i, 4, 6, titleColor);
+        }
+    }
+    // Lower diagonal
+    for (int i = 0; i < 24; i += 4) {
+        canvas->fillRect(xK + 8 + i, startY + 22 + i, 4, 6, titleColor);
+    }
+
+    // --- Draw letter E ---
+    int xE = xK + letterSpacing;
+    // Vertical bar for E
+    canvas->fillRect(xE, startY, 8, 48, titleColor);
+    // Top horizontal bar
+    canvas->fillRect(xE, startY, 30, 8, titleColor);
+    // Middle horizontal bar
+    canvas->fillRect(xE, startY + 20, 24, 8, titleColor);
+    // Bottom horizontal bar
+    canvas->fillRect(xE, startY + 40, 30, 8, titleColor);
 }
 
 // MARK: - Options Menu
@@ -294,7 +385,7 @@ void SnakeApp::showGameOver() {
     canvas->fillScreen(canvas->color565(0, 0, 0));
 
     // Game Over preview
-    canvas->setCursor(canvas->width() / 2 - 44, canvas->height() / 2 - 50);
+    canvas->setCursor(canvas->width() / 2 - 48, canvas->height() / 2 - 50);
     canvas->setTextColor(lilka::colors::Red);
     canvas->print(Strings::GAME_OVER);
 

@@ -30,6 +30,10 @@ private:
     int menuIndex;
     // Indexes for Options menu options
     int optionsIndex;
+    // Flag indicating if title animation has been shown
+    bool titleAnimated;
+    // Game over flag
+    bool gameOver;
 
     // MARK: - Actors Properties
 
@@ -41,14 +45,14 @@ private:
     int appleX, appleY;
     // Current score
     int score;
-    // Game over flag
-    bool gameOver;
 
     // MARK: - Menu methods
+    void displayAnimatedTitle();
     void displayMainMenu();
     void handleMainMenu();
     void displayOptionsMenu();
     void handleOptionsMenu();
+    void drawBigTitle(int startX, int startY);
 
     // MARK: - Game Process methods
     void restartGame();
