@@ -8,7 +8,7 @@ static int globalHighScore = 0;
 
 // MARK: - SnakeApp
 SnakeApp::SnakeApp() :
-    App(game_title),
+    App(gameTitle),
     dxSnake(baseSegmentSize),
     dySnake(0),
     score(0),
@@ -36,6 +36,9 @@ SnakeApp::SnakeApp() :
 // MARK: - Run
 void SnakeApp::run() {
     while (true) {
+        handleMainMenu();
+        break;
+
         switch (currentGameState) {
             case GameState::Menu:
                 handleMainMenu();
@@ -139,15 +142,14 @@ void SnakeApp::displayMainMenu() {
     drawBigTitle(canvas->width() / 2 - 100, 20);
 
     // Main menu options
-    const char* items[3] = {"Start", "Options", "Exit"};
     const int verticalSpacing = 20;
     int startY = canvas->height() / 2 + 10;
 
-    for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < sizeof(mainMenuItems); i++) {
         canvas->setCursor(canvas->width() / 2 - 40, startY + i * verticalSpacing);
         if (i == menuIndex) canvas->setTextColor(lilka::colors::Yellow);
         else canvas->setTextColor(lilka::colors::White);
-        canvas->print(items[i]);
+        canvas->print(mainMenuItems[i]);
     }
 }
 
@@ -159,7 +161,7 @@ void SnakeApp::drawBigTitle(int startX, int startY) {
     uint16_t titleColor = canvas->color565(0, 255, 0);
 
     // --- Draw Apple before S ---
-    canvas->fillRect(startX - 16, startY + 41, 8, 8, canvas->color565(255, 0, 0));
+    canvas->fillRect(startX - 16, startY + 40, 8, 8, canvas->color565(255, 0, 0));
 
     // --- Draw letter S ---
     // Top horizontal bar
@@ -191,17 +193,17 @@ void SnakeApp::drawBigTitle(int startX, int startY) {
     // Right diagonal of A
     for (int i = 0; i < 48; i += 4) {
         if (i >= 40) {
-            canvas->fillRect(16 + xA + i / 3, startY + i, 4, 4, titleColor);
+            canvas->fillRect(14 + xA + i / 3, startY + i, 6, 4, titleColor);
         } else {
-            canvas->fillRect(16 + xA + i / 3, startY + i, 4, 6, titleColor);
+            canvas->fillRect(14 + xA + i / 3, startY + i, 6, 6, titleColor);
         }
     }
     // Left diagonal of A
     for (int i = 0; i < 48; i += 4) {
         if (i >= 40) {
-            canvas->fillRect(xA + 16 - i / 3, startY + i, 4, 4, titleColor);
+            canvas->fillRect(xA + 16 - i / 3, startY + i, 6, 4, titleColor);
         } else {
-            canvas->fillRect(xA + 16 - i / 3, startY + i, 4, 6, titleColor);
+            canvas->fillRect(xA + 16 - i / 3, startY + i, 6, 6, titleColor);
         }
     }
     // Horizontal crossbar of A
@@ -321,6 +323,12 @@ void SnakeApp::update() {
 
     // Get the current state of the control buttons
     lilka::State state = lilka::controller.getState();
+
+    if (state.b.justPressed && currentGameState == GameState::Game) {
+        GameState::Menu;
+        return;
+    }
+
     if (state.up.justPressed && dySnake == 0) {
         dxSnake = 0;
         dySnake = -baseSegmentSize;

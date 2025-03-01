@@ -13,8 +13,10 @@ public:
 private:
     // MARK: - Const Properties
 
+    const char* mainMenuItems[3] = {"Start", "Options", "Exit"};
+
     // Game title
-    const char* game_title = "Snake";
+    const char* gameTitle = "Snake";
     // Size set in pixels (height and width)
     const int baseSegmentSize = 8;
     // Dead zone around the edges of the screen as a multiple of the segment size
