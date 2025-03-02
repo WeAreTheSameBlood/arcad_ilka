@@ -13,8 +13,6 @@ public:
 private:
     // MARK: - Const Properties
 
-    const char* mainMenuItems[3] = {"Start", "Options", "Exit"};
-
     // Game title
     const char* gameTitle = "Snake";
     // Size set in pixels (height and width)
@@ -25,31 +23,29 @@ private:
     // MARK: - General Properties
 
     // Actual game state
-    GameState currentGameState;
+    GameState currentGameState = GameState::Menu;
     // Game speed delay in ms to control the speed of the snake and control responsiveness
-    int gameSpeedDelay;
+    int gameSpeedDelay = 100;
     // Indexes for Main menu options
-    int menuIndex;
+    int menuIndex = 0;
     // Indexes for Options menu options
-    int optionsIndex;
-    // Flag indicating if title animation has been shown
-    bool titleAnimated;
+    int optionsIndex = 1;
     // Game over flag
-    bool gameOver;
+    bool gameOver = false;
 
     // MARK: - Actors Properties
 
     // Snake body represented as a vector of pairs of x, y coordinates
     std::vector<std::pair<int, int>> body;
     // Direction of the snake
-    int dxSnake, dySnake;
+    int dxSnake = baseSegmentSize;
+    int dySnake = 0;
     // Apple position
     int appleX, appleY;
     // Current score
-    int score;
+    int score = 0;
 
     // MARK: - Menu methods
-    void displayAnimatedTitle();
     void displayMainMenu();
     void handleMainMenu();
     void displayOptionsMenu();

@@ -7,17 +7,7 @@
 static int globalHighScore = 0;
 
 // MARK: - SnakeApp
-SnakeApp::SnakeApp() :
-    App(gameTitle),
-    dxSnake(baseSegmentSize),
-    dySnake(0),
-    score(0),
-    gameOver(false),
-    currentGameState(GameState::Menu),
-    gameSpeedDelay(100),
-    menuIndex(0),
-    optionsIndex(1),
-    titleAnimated(false) {
+SnakeApp::SnakeApp() : App(gameTitle) {
     std::srand(std::time(nullptr));
 
     // Init snake body in the centre of screen
@@ -27,7 +17,7 @@ SnakeApp::SnakeApp() :
     // Build of start snake body as 3 segments length
     body.push_back({startX, startY});
     body.push_back({startX - baseSegmentSize, startY});
-    body.push_back({startX - 2 * baseSegmentSize, startY});
+    body.push_back({startX - (2 * baseSegmentSize), startY});
 
     // Spawn init apple
     spawnApple();
@@ -36,9 +26,6 @@ SnakeApp::SnakeApp() :
 // MARK: - Run
 void SnakeApp::run() {
     while (true) {
-        handleMainMenu();
-        break;
-
         switch (currentGameState) {
             case GameState::Menu:
                 handleMainMenu();
@@ -54,7 +41,7 @@ void SnakeApp::run() {
                     drawGame();
 
                     // Show current score
-                    char scoreDisplay[16];
+                    char scoreDisplay[6];
                     std::snprintf(scoreDisplay, sizeof(scoreDisplay), Strings::SCORE_FORMAT, score);
                     canvas->setCursor(10, 16);
                     canvas->setTextColor(lilka::colors::Green);
@@ -106,6 +93,7 @@ void SnakeApp::restartGame() {
 void SnakeApp::handleMainMenu() {
     displayMainMenu();
     queueDraw();
+
     lilka::State state = lilka::controller.getState();
 
     if (state.up.justPressed) {
@@ -142,6 +130,7 @@ void SnakeApp::displayMainMenu() {
     drawBigTitle(canvas->width() / 2 - 100, 20);
 
     // Main menu options
+    const char* mainMenuItems[3] = {"Start", "Options", "Exit"};
     const int verticalSpacing = 20;
     int startY = canvas->height() / 2 + 10;
 
@@ -293,10 +282,10 @@ void SnakeApp::displayOptionsMenu() {
 void SnakeApp::spawnApple() {
     // Calculate limits indesies for random position
     int minIndexX = deadZoneSegmentsMultiplicator;
-    int maxIndexX = (canvas->width() / baseSegmentSize) - deadZoneSegmentsMultiplicator - 1;
+    int maxIndexX = (canvas->width() / baseSegmentSize) - deadZoneSegmentsMultiplicator;
 
     int minIndexY = deadZoneSegmentsMultiplicator;
-    int maxIndexY = (canvas->height() / baseSegmentSize) - deadZoneSegmentsMultiplicator - 1;
+    int maxIndexY = (canvas->height() / baseSegmentSize) - deadZoneSegmentsMultiplicator;
 
     // Generate random position until it doesn't collide with the snake
     while (true) {
